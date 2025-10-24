@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion Detection Quads</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 0;
+            overflow: hidden;
+            background: black;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        video {
+            display: none; /* Hide video element */
+        }
+    </style>
+</head>
+<body>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+
+    <audio id="audio1" src="sound1.mp3"></audio>
+    <audio id="audio2" src="sound2.mp3"></audio>
+    <audio id="audio3" src="sound3.mp3"></audio>
+    <audio id="audio4" src="sound4.mp3"></audio>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const audios = [
+            document.getElementById('audio1'),
+            document.getElementById('audio2'),
+            document.getElementById('audio3'),
+            document.getElementById('audio4'),
+        ];
+
+        let lastFrameData = null;
+
+        // Access the webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                detectMotion();
+            })
+            .catch(err => {
+                console.error("Error accessing webcam: ", err);
+            });
+
+        function detectMotion() {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const currentFrameData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            if (lastFrameData) {
+                const widthHalf = canvas.width / 2;
+                const heightHalf = canvas.height / 2;
+
+                for (let x = 0; x < canvas.width; x += 50) {
+                    for (let y = 0; y < canvas.height; y += 50) {
+                        const quadrant = getQuadrant(x, y);
+                        const motionDetected = checkMotion(currentFrameData, lastFrameData, x, y);
+
+                        if (motionDetected) {
+                            playAudio(quadrant);
+                        }
+                    }
+                }
+            }
+
+            lastFrameData = currentFrameData;
+            requestAnimationFrame(detectMotion);
+        }
+
+        function getQuadrant(x, y) {
+            const widthHalf = canvas.width / 2;
+            const heightHalf = canvas.height / 2;
+
+            if (x < widthHalf && y < heightHalf) return 0; // Top-left
+            if (x >= widthHalf && y < heightHalf) return 1; // Top-right
+            if (x < widthHalf && y >= heightHalf) return 2; // Bottom-left
+            return 3; // Bottom-right
+        }
+
+        function checkMotion(currentFrame, lastFrame, x, y) {
+            const threshold = 50;
+            const index1 = (y * currentFrame.width + x) * 4;
+            const index2 = (y * lastFrame.width + x) * 4;
+
+            const rDiff = Math.abs(currentFrame.data[index1] - lastFrame.data[index2]);
+            const gDiff = Math.abs(currentFrame.data[index1 + 1] - lastFrame.data[index2 + 1]);
+            const bDiff = Math.abs(currentFrame.data[index1 + 2] - lastFrame.data[index2 + 2]);
+
+            return (rDiff + gDiff + bDiff) > threshold;
+        }
+
+        function playAudio(quadrant) {
+            audios[quadrant].play();
+        }
+    </script>
+</body>
+</html>
