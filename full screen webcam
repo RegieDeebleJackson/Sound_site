@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=2.0">
     <title>Full Screen Webcam</title>
     <style>
         body {
@@ -14,8 +14,8 @@
             background-color: black;
         }
         video {
-            width: 100vw;
-            height: 100vh;
+            width: 200vw;
+            height: 200vh;
             object-fit: cover;
         }
     </style>
