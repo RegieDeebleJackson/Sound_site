@@ -28,8 +28,8 @@
     <video id="video" autoplay playsinline></video>
     <canvas id="canvas"></canvas>
 
-    <audio id="audio1" src="passive_recording.wav"></audio>
-    <audio id="audio2" src="the_killing_moon.wav"></audio>
+    <audio id="audio1" src="sound1.mp3"></audio>
+    <audio id="audio2" src="sound2.mp3"></audio>
     <audio id="audio3" src="sound3.mp3"></audio>
     <audio id="audio4" src="sound4.mp3"></audio>
 
